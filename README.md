@@ -17,7 +17,7 @@ Save .FA file of protein sequence MSA in the same folder as disorderalignment.py
 
 Key: 
 
-File naming method: programname_dataset(conservation setting)(identity/type setting)(window size)
+Output naming scheme: programname_dataset(conservation setting)(identity/type setting)(window size)
 
 Blue: Aligned ordered sequence
 
