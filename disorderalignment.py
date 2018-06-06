@@ -138,6 +138,26 @@ def reversestringintervalfinder(string, avoid):
     return output
 
 ################################################################################
+''' Define residue classifications and associated alphabet '''
+################################################################################
+
+types_dict = {  "A": ['A','I','L','M','V','G','P','X'],
+                "O": ['S','T','N','Q','C'],
+                "R": ['F','W','Y'],
+                "P": ['H','K','R'],
+                "N": ['D','E'],
+                "-": ['-']
+                }
+
+letters_of_types = ""
+for j in [a for a in types_dict.keys() if a != "-"]:
+    letters_of_types += j
+
+class MyAlphabet(Alphabet.SingleLetterAlphabet):
+    letters = letters_of_types
+my_alphabet = MyAlphabet()
+
+################################################################################
 ''' Open disorder prediction file and pull out predictions '''
 ################################################################################
 
@@ -166,26 +186,41 @@ with open(disorder_location + "/list.desc") as file:
 ''' Align disorder predictions using MSA '''
 ################################################################################
 
+types_choice = str(input("Calculate conservation by amino acid identity or " +
+    "by type? (i/t)"))
+
 #Read alignment file, align disorder predictions by sequence alignment
+newalignmentlist = []
 alignment = AlignIO.read(filename + "_protein_translation_MSA.fa", "fasta")
 for value in range(len(alignment)):
     alignseq = alignment[value]
     predseq = predictions[value]
+    protseq = protein_sequences[value]
     modifiedpredseq = ""
+    modifiedprotseq = ""
     disordercount = 0
-    counter = 0
     for i in alignseq:
         if i != "-":
             if disordercount < len(predseq):
                 modifiedpredseq += predseq[disordercount]
+                modifiedprotseq += protseq[disordercount]
                 disordercount += 1
-                counter +=1
             else:
                 break
         elif i == "-":
             modifiedpredseq += "-"
-            counter += 1
+            modifiedprotseq += "-"
+    if types_choice == "t":
+        types = ""
+        for i in modifiedprotseq:
+            for j in types_dict.keys():
+                if i in types_dict[j]:
+                    types += j
+        newalignmentlist.append(SeqRecord(Seq(types, my_alphabet)))
     predictions[value] = modifiedpredseq
+
+if types_choice == "t":
+    alignment = MultipleSeqAlignment(newalignmentlist)
 
 ################################################################################
 ''' Calculate conservation of sequences in alignment using sliding window '''
@@ -202,6 +237,19 @@ e_freq_table = FreqTable.FreqTable(expect_freq, FreqTable.FREQ,
 pseudo_count = 0.1
 chars_to_ignore = ['-']
 log_base=2
+
+if types_choice == "t":
+    new_expect_freq = {}
+    for j in types_dict.keys():
+        new_expect_freq[j] = 0
+
+    for i in expect_freq.keys():
+        for j in types_dict.keys():
+            if i in types_dict[j]:
+                new_expect_freq[j] += expect_freq[i]
+
+    e_freq_table = FreqTable.FreqTable(new_expect_freq, FreqTable.FREQ,
+                                       my_alphabet)
 
 window_size = int(input("Sliding window size for conservation: "))
 if window_size == 1:
@@ -241,9 +289,10 @@ for j in range(len(alignment[0])-half_window, len(alignment[0])):
     conservation_scores.append(round(
         float(window_score)/(len(alignment)-j+half_window),2))
 
-first_quartile = conservation_scores[int(0.25*len(conservation_scores))]
-median = conservation_scores[int(0.5*len(conservation_scores))]
-third_quartile = conservation_scores[int(0.75*len(conservation_scores))]
+percentilelist = sorted(conservation_scores)
+first_quartile = percentilelist[int(0.25*len(percentilelist))]
+median = percentilelist[int(0.5*len(percentilelist))]
+third_quartile = percentilelist[int(0.75*len(percentilelist))]
 print("Summary of conservation: \nFirst quartile: " + str(first_quartile) +
         "\nAverage: " + str(round(sum(conservation_scores)/
             len(conservation_scores),2)) +
@@ -261,7 +310,7 @@ conservationlocations = valueintervalfinder(conservation_scores,
 ################################################################################
 
 name = str(str(basename(__file__)).replace(".py","") + "_" +
-    str(filename) + str(score_threshold))
+    str(filename) + str(score_threshold) + types_choice + str(window_size))
 gd_diagram = GenomeDiagram.Diagram(name)
 max_len=0
 for record in alignment:
