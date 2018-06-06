@@ -39,7 +39,9 @@ except:
                 distance_by_letter[i].append(after-before)
                 before = after + 1
             if len(distance_by_letter[i]) != 1:
-                distance_by_letter[i] = (sum(distance_by_letter[i][:-1])+len(distance_by_letter[i][:-1]))/len(distance_by_letter[i][:-1])
+                distance_by_letter[i] = (sum(distance_by_letter[i][:-1])+
+                    len(distance_by_letter[i][:-1]))/
+                    len(distance_by_letter[i][:-1])
             else:
                 distance_by_letter[i] = 0
             cumulative_distances[i] += distance_by_letter[i]
@@ -58,7 +60,11 @@ data = []
 for i in distances.keys():
     data.append(distances[i])
 
-pir = "MEVAFPSSPPVKCIADERLTEISMDFTKLGFPEEDEEIKKLERSWSKLEESVEFNEDDEEEEEEFSFACVNGEGSPITADEAFEDGQIRPVFPLFNRDLLFEYENEDDKNDNVSVTDENRPRLRKLFVEDRNGNGDGEETEGSEKEPLGPYCSWTGGTVAEASPETCRKSNSTGFSKLWRFRDLVLRSNSDGRDAFVFLNNSNDKTRTRSSSSSSSTAAEENDKKVITEKKKGKEKTSTSSETKKKTTTTKSAHEKLYMRNRAMKEEVKHRSYLPYKQVGFFTNVNGLSRNIHPF"
+pir = "MEVAFPSSPPVKCIADERLTEISMDFTKLGFPEEDEEIKKLERSWSKLEESVEFNEDDEEEEEEFSFA" +
+    "CVNGEGSPITADEAFEDGQIRPVFPLFNRDLLFEYENEDDKNDNVSVTDENRPRLRKLFVEDRNGNGDGE" +
+    "ETEGSEKEPLGPYCSWTGGTVAEASPETCRKSNSTGFSKLWRFRDLVLRSNSDGRDAFVFLNNSNDKTRT" +
+    "RSSSSSSSTAAEENDKKVITEKKKGKEKTSTSSETKKKTTTTKSAHEKLYMRNRAMKEEVKHRSYLPYKQ" +
+    "VGFFTNVNGLSRNIHPF"
 
 distance_by_letter = {}
 pir_distances = [0]
@@ -72,7 +78,8 @@ for i in distances.keys():
         before = after + 1
     if len(distance_by_letter[i]) != 1:
         listlength = len(distance_by_letter[i][:-1])
-        distance_by_letter[i] = (sum(distance_by_letter[i][:-1])+listlength)/listlength
+        distance_by_letter[i] = (sum(distance_by_letter[i][:-1])+listlength)/
+            listlength
     else:
         distance_by_letter[i] = 0
     pir_distances.append(math.log(distance_by_letter[i]))
