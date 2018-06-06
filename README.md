@@ -14,6 +14,7 @@ Save .FASTA file of protein sequences as basename_protein_translation.py in the 
 
 Save .FA file of protein sequence MSA in the same folder as disorderalignment.py
 
+
 Key: 
 
 File naming method: programname_dataset(conservation setting)(identity/type setting)(window size)
